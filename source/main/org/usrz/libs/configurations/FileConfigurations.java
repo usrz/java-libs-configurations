@@ -20,11 +20,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.usrz.libs.configurations.Configurations;
-import org.usrz.libs.configurations.ConfigurationsException;
-import org.usrz.libs.configurations.DelegateConfigurations;
-import org.usrz.libs.configurations.JsonConfigurations;
-import org.usrz.libs.configurations.PropertiesConfigurations;
 import org.usrz.libs.logging.Log;
 
 /**
@@ -47,14 +42,14 @@ public class FileConfigurations extends DelegateConfigurations {
      * or <em><a href="http://json.org/">JSON</a></em> format.
      */
     public FileConfigurations(File file)
-    throws IOException, ConfigurationsException {
+    throws ConfigurationsException {
         super(load(file));
     }
 
     /* ====================================================================== */
 
     private static final Configurations load(File file)
-    throws IOException, ConfigurationsException {
+    throws ConfigurationsException {
         if (file == null) throw new NullPointerException("Null URL");
 
         log.debug("Parsing configurations from file %s", file);
@@ -63,17 +58,23 @@ public class FileConfigurations extends DelegateConfigurations {
         if (!file.isFile())
             throw new IllegalArgumentException("File " + name + " not found (or not a file)");
 
-        final FileInputStream input = new FileInputStream(file);
         try {
-            if (name.endsWith(".json") || name.endsWith(".js"))
-                return new JsonConfigurations(input);
-            else if (name.endsWith(".properties") || name.endsWith(".xml")) {
-                return new PropertiesConfigurations(input);
-            } else {
-                throw new IllegalArgumentException("Invalid file extension for \"" + name + "\"");
+            final FileInputStream input = new FileInputStream(file);
+            try {
+                if (name.endsWith(".json") || name.endsWith(".js"))
+                    return new JsonConfigurations(input);
+                else if (name.endsWith(".properties") || name.endsWith(".xml")) {
+                    return new PropertiesConfigurations(input);
+                } else {
+                    throw new IllegalArgumentException("Invalid file extension for \"" + name + "\"");
+                }
+            } finally {
+                input.close();
             }
-        } finally {
-            input.close();
+        } catch (IOException exception) {
+            throw new ConfigurationsException("I/O error reading file " + file, exception);
+        } catch (Exception exception) {
+            throw new ConfigurationsException("Error reading file " + file, exception);
         }
     }
 

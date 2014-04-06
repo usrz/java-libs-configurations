@@ -20,11 +20,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
 
-import org.usrz.libs.configurations.Configurations;
-import org.usrz.libs.configurations.ConfigurationsException;
-import org.usrz.libs.configurations.DelegateConfigurations;
-import org.usrz.libs.configurations.JsonConfigurations;
-import org.usrz.libs.configurations.PropertiesConfigurations;
 import org.usrz.libs.logging.Log;
 
 /**
@@ -47,31 +42,37 @@ public class URLConfigurations extends DelegateConfigurations {
      * or <em><a href="http://json.org/">JSON</a></em> format.
      */
     public URLConfigurations(URL url)
-    throws IOException, ConfigurationsException {
+    throws ConfigurationsException {
         super(load(url));
     }
 
     /* ====================================================================== */
 
     private static final Configurations load(URL url)
-    throws IOException, ConfigurationsException {
+    throws ConfigurationsException {
         if (url == null) throw new NullPointerException("Null URL");
 
         log.debug("Parsing configurations from URL %s", url);
 
         final String name = url.toString();
         final String file = url.getFile();
-        final InputStream input = url.openStream();
-            try {
-            if (file.endsWith(".json"))
-                return new JsonConfigurations(input);
-            else if (file.endsWith(".properties") || name.endsWith(".xml")) {
-                return new PropertiesConfigurations(input);
-            } else {
-                throw new IllegalArgumentException("URL \"" + name + "\" must end with \".json\", \".properties\", or \".xml\"");
+        try {
+            final InputStream input = url.openStream();
+                try {
+                if (file.endsWith(".json"))
+                    return new JsonConfigurations(input);
+                else if (file.endsWith(".properties") || name.endsWith(".xml")) {
+                    return new PropertiesConfigurations(input);
+                } else {
+                    throw new IllegalArgumentException("URL \"" + name + "\" must end with \".json\", \".properties\", or \".xml\"");
+                }
+            } finally {
+                input.close();
             }
-        } finally {
-            input.close();
+        } catch (IOException exception) {
+            throw new ConfigurationsException("I/O error loading URL " + url, exception);
+        } catch (Exception exception) {
+            throw new ConfigurationsException("Error loading URL " + url, exception);
         }
     }
 

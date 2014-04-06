@@ -18,15 +18,8 @@ package org.usrz.libs.configurations;
 import static java.lang.Boolean.TRUE;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.usrz.libs.configurations.CommandLineConfigurations;
-import org.usrz.libs.configurations.Configurations;
-import org.usrz.libs.configurations.ConfigurationsException;
-import org.usrz.libs.configurations.FileConfigurations;
-import org.usrz.libs.configurations.MappedConfigurations;
 
 /**
  * A {@link Configurations} instance parsing <em>key-value</em> mappings from
@@ -101,12 +94,9 @@ public class CommandLineConfigurations extends MappedConfigurations {
             } else if (argument.startsWith("-")) {
                 throw new IllegalArgumentException("Invalid argument " + argument);
 
-            } else try {
+            } else {
                 /* Everything else is a reference to a properties file */
                 configurations.putAll(new FileConfigurations(new File(argument)));
-            } catch (IOException exception) {
-                throw new ConfigurationsException("I/O error parsing file from command line")
-                            .initLocation(argument).initCause(exception);
             }
         }
 

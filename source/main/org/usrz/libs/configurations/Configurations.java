@@ -37,10 +37,6 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 
-import org.usrz.libs.configurations.Configurations;
-import org.usrz.libs.configurations.ConfigurationsException;
-import org.usrz.libs.configurations.MappedConfigurations;
-
 /**
  * The {@link Configurations} class is a unmodifiable {@link Map} used to
  * manage configuration items.
@@ -1045,8 +1041,7 @@ public abstract class Configurations implements Map<String, String> {
      * <p>This method will use the <em>UTF-8</em> character set, and will save
      * entries in a way similar to {@linkplain Properties java properties}.</p>
      */
-    public final Configurations list(OutputStream output)
-    throws IOException {
+    public final Configurations list(OutputStream output) {
         return list(new OutputStreamWriter(output, UTF8));
     }
 
@@ -1057,17 +1052,20 @@ public abstract class Configurations implements Map<String, String> {
      * <p>This method will save entries in a way similar to
      * {@linkplain Properties java properties}.</p>
      */
-    public final Configurations list(Writer writer)
-    throws IOException {
+    public final Configurations list(Writer writer) {
         final Set<String> sorted = new TreeSet<>(keySet());
-        for (String key: sorted) {
-            writer.write(key);
-            writer.write(" = ");
-            writer.write(this.get(key));
-            writer.write(LINE_SEPARATOR);
+        try {
+            for (String key: sorted) {
+                writer.write(key);
+                writer.write(" = ");
+                writer.write(this.get(key));
+                writer.write(LINE_SEPARATOR);
+            }
+            writer.flush();
+            return this;
+        } catch (IOException exception) {
+            throw new ConfigurationsException("I/O error listing configurations", exception);
         }
-        writer.flush();
-        return this;
     }
 
     /* ====================================================================== */

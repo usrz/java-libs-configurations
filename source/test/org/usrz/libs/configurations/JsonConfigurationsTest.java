@@ -16,11 +16,6 @@
 package org.usrz.libs.configurations;
 
 import org.testng.annotations.Test;
-import org.usrz.libs.configurations.Configurations;
-import org.usrz.libs.configurations.ConfigurationsBuilder;
-import org.usrz.libs.configurations.ConfigurationsException;
-import org.usrz.libs.configurations.JsonConfigurations;
-import org.usrz.libs.configurations.ResourceConfigurations;
 import org.usrz.libs.testing.AbstractTest;
 import org.usrz.libs.testing.IO;
 
@@ -56,8 +51,12 @@ public class JsonConfigurationsTest extends AbstractTest {
     @Test(expectedExceptions = ConfigurationsException.class,
           expectedExceptionsMessageRegExp = "^Invalid key name \\\"test.a wrong key\\\".*")
     public void testJsonWrongKey()
-    throws Exception {
-        new ResourceConfigurations("wrongkey.json");
-        fail("Exception not thrown");
+    throws Throwable {
+        try {
+            new ResourceConfigurations("wrongkey.json");
+            fail("Exception not thrown");
+        } catch (ConfigurationsException exception) {
+            throw exception.getCause(); // unwrap cause
+        }
     }
 }

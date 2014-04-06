@@ -24,11 +24,6 @@ import java.net.URL;
 import java.util.Map;
 
 import org.testng.annotations.Test;
-import org.usrz.libs.configurations.Configurations;
-import org.usrz.libs.configurations.ConfigurationsBuilder;
-import org.usrz.libs.configurations.ConfigurationsException;
-import org.usrz.libs.configurations.PropertiesConfigurations;
-import org.usrz.libs.configurations.ResourceConfigurations;
 import org.usrz.libs.testing.AbstractTest;
 
 public class ConfigurationsTest extends AbstractTest {
@@ -296,8 +291,12 @@ public class ConfigurationsTest extends AbstractTest {
     @Test(expectedExceptions = ConfigurationsException.class,
           expectedExceptionsMessageRegExp = "^Invalid key name \\\"a~wrong~key\\\".*")
     public void testWrongKey()
-    throws Exception {
-        new ResourceConfigurations("wrongkey.properties");
-        fail("Exception not thrown");
+    throws Throwable {
+        try {
+            new ResourceConfigurations("wrongkey.properties");
+            fail("Exception not thrown");
+        } catch (ConfigurationsException exception) {
+            throw exception.getCause(); // unwrap cause
+        }
     }
 }

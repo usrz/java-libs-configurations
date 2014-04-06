@@ -51,7 +51,7 @@ public class JsonConfigurations extends MappedConfigurations {
      * specified {@link Reader}.
      */
     public JsonConfigurations(Reader reader)
-    throws ConfigurationsException, IOException {
+    throws IOException, ConfigurationsException {
         super(parse(reader));
     }
 
@@ -61,25 +61,26 @@ public class JsonConfigurations extends MappedConfigurations {
      * specified {@link InputStream}.
      */
     public JsonConfigurations(InputStream input)
-    throws ConfigurationsException, IOException {
+    throws IOException, ConfigurationsException {
         super(parse(input));
     }
 
     /* ====================================================================== */
 
-    static final Map<String, Object> parse(InputStream input)
+    private static final Map<String, Object> parse(InputStream input)
     throws IOException, ConfigurationsException {
         if (input == null) throw new NullPointerException("Null input stream");
         return parse(new InputStreamReader(input, UTF8));
     }
 
     @SuppressWarnings("unchecked")
-    static final Map<String, Object> parse(Reader reader)
+    private static final Map<String, Object> parse(Reader reader)
     throws IOException, ConfigurationsException {
         if (reader == null) throw new NullPointerException("Null reader");
 
         /* Read our JSON fully, wrapping it in a { json } structure */
         final StringBuilder builder = new StringBuilder("callback.invoke(").append(LINE_SEPARATOR);
+
         final char[] buffer = new char[4096];
         int read = -1;
         while ((read = reader.read(buffer)) >= 0) {
@@ -99,12 +100,13 @@ public class JsonConfigurations extends MappedConfigurations {
 
         } catch (RuntimeException exception) {
             final Throwable cause = exception.getCause();
-            if (cause instanceof IOException) throw (IOException) cause;
+            if (cause instanceof ConfigurationsException)
+                throw (ConfigurationsException) cause;
             throw exception;
 
         } catch (ScriptException exception) {
             /* Wrap a JsonParseException in a ConfigurationsException */
-            throw new ConfigurationsException("Unable to parse JSON format");
+            throw new ConfigurationsException("Unable to parse JSON format", exception);
         }
     }
 

@@ -15,18 +15,11 @@
  * ========================================================================== */
 package org.usrz.libs.configurations;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import org.usrz.libs.configurations.Configurations;
-import org.usrz.libs.configurations.ConfigurationsException;
-import org.usrz.libs.configurations.DefaultConfigurations;
-import org.usrz.libs.configurations.DelegateConfigurations;
-import org.usrz.libs.configurations.ResourceConfigurations;
-import org.usrz.libs.configurations.URLConfigurations;
 import org.usrz.libs.logging.Log;
 
 /**
@@ -73,7 +66,7 @@ public class DefaultConfigurations extends DelegateConfigurations {
      * defaults files associated with the <em>caller</em> {@link Class}.
      */
     public DefaultConfigurations()
-    throws IOException, ConfigurationsException {
+    throws ConfigurationsException {
         super(load());
     }
 
@@ -82,14 +75,14 @@ public class DefaultConfigurations extends DelegateConfigurations {
      * defaults files associated with the <em>specified</em> {@link Class}.
      */
     public DefaultConfigurations(Class<?> clazz)
-    throws IOException, ConfigurationsException {
+    throws ConfigurationsException {
         super(load(clazz));
     }
 
     /* ====================================================================== */
 
     private static final Configurations load()
-    throws IOException, ConfigurationsException {
+    throws ConfigurationsException {
         final String className = new Throwable().getStackTrace()[2].getClassName();
         try {
             return load(Class.forName(className));
@@ -99,7 +92,7 @@ public class DefaultConfigurations extends DelegateConfigurations {
     }
 
     private static final Configurations load(Class<?> clazz)
-    throws IOException, ConfigurationsException {
+    throws ConfigurationsException {
         if (clazz == null) throw new NullPointerException("Null class");
 
         final List<URL> resources = new ArrayList<>();

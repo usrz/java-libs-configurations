@@ -15,15 +15,8 @@
  * ========================================================================== */
 package org.usrz.libs.configurations;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.Properties;
-
-import org.usrz.libs.configurations.Configurations;
-import org.usrz.libs.configurations.ConfigurationsException;
-import org.usrz.libs.configurations.DelegateConfigurations;
-import org.usrz.libs.configurations.ResourceConfigurations;
-import org.usrz.libs.configurations.URLConfigurations;
 
 /**
  * A {@link Configurations} implementation reading <em>key-value</em> mappings
@@ -39,7 +32,7 @@ public class ResourceConfigurations extends DelegateConfigurations {
      * specified resource associated with the <em>caller</em> {@link Class}.
      */
     public ResourceConfigurations(String resource)
-    throws IOException, ConfigurationsException {
+    throws ConfigurationsException {
         super(load(resource));
     }
 
@@ -48,30 +41,30 @@ public class ResourceConfigurations extends DelegateConfigurations {
      * specified resource associated with the specified {@link Class}.
      */
     public ResourceConfigurations(Class<?> clazz, String resource)
-    throws IOException, ConfigurationsException {
+    throws ConfigurationsException {
         super(load(clazz, resource));
     }
 
     /* ====================================================================== */
 
     private static URLConfigurations load(String resource)
-    throws IOException, ConfigurationsException {
+    throws ConfigurationsException {
         final String className = new Throwable().getStackTrace()[2].getClassName();
         try {
             return load(Class.forName(className), resource);
         } catch (ClassNotFoundException exception) {
-            throw new IllegalStateException("Class \"" + className + "\" not found", exception);
+            throw new ConfigurationsException("Class \"" + className + "\" not found", exception);
         }
     }
 
     private static URLConfigurations load(Class<?> clazz, String resource)
-    throws IOException, ConfigurationsException {
+    throws ConfigurationsException {
         if (clazz == null) throw new NullPointerException("Null class");
         if (resource == null) throw new NullPointerException("Null resource");
 
         final URL url = clazz.getResource(resource);
         if (url != null) return new URLConfigurations(url);
 
-        throw new IllegalStateException("Resource \"" + resource + "\" not found for class " + clazz.getName());
+        throw new ConfigurationsException("Resource \"" + resource + "\" not found for class " + clazz.getName());
     }
 }
