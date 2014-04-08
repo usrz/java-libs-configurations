@@ -140,11 +140,11 @@ implements Provider<T> {
 
     @Inject
     private void setInjector(Injector injector) {
-        if (key != null) this.configured = getConfigurations(injector);
         this.injected = injector;
+        if (key != null) this.configured = getConfigurations();
     }
 
-    private Configurations getConfigurations(Injector injector) {
+    private Configurations getConfigurations() {
 
         /* Fully annotated? */
         Binding<Configurations> binding = injector.getExistingBinding(key);
@@ -170,112 +170,111 @@ implements Provider<T> {
 
     private class DelegateInjector implements Injector {
 
-
         @Override
         public void injectMembers(Object instance) {
-            if (injected != null) throw new IllegalStateException("No Injector available");
+            if (injected == null) throw new IllegalStateException("No Injector available");
             injected.injectMembers(instance);
         }
 
         @Override
         public <X> MembersInjector<X> getMembersInjector(TypeLiteral<X> typeLiteral) {
-            if (injected != null) throw new IllegalStateException("No Injector available");
+            if (injected == null) throw new IllegalStateException("No Injector available");
             return injected.getMembersInjector(typeLiteral);
         }
 
         @Override
         public <X> MembersInjector<X> getMembersInjector(Class<X> type) {
-            if (injected != null) throw new IllegalStateException("No Injector available");
+            if (injected == null) throw new IllegalStateException("No Injector available");
             return injected.getMembersInjector(type);
         }
 
         @Override
         public Map<Key<?>, Binding<?>> getBindings() {
-            if (injected != null) throw new IllegalStateException("No Injector available");
+            if (injected == null) throw new IllegalStateException("No Injector available");
             return injected.getBindings();
         }
 
         @Override
         public Map<Key<?>, Binding<?>> getAllBindings() {
-            if (injected != null) throw new IllegalStateException("No Injector available");
+            if (injected == null) throw new IllegalStateException("No Injector available");
             return injected.getAllBindings();
         }
 
         @Override
         public <X> Binding<X> getBinding(Key<X> key) {
-            if (injected != null) throw new IllegalStateException("No Injector available");
+            if (injected == null) throw new IllegalStateException("No Injector available");
             return injected.getBinding(key);
         }
 
         @Override
         public <X> Binding<X> getBinding(Class<X> type) {
-            if (injected != null) throw new IllegalStateException("No Injector available");
+            if (injected == null) throw new IllegalStateException("No Injector available");
             return injected.getBinding(type);
         }
 
         @Override
         public <X> Binding<X> getExistingBinding(Key<X> key) {
-            if (injected != null) throw new IllegalStateException("No Injector available");
+            if (injected == null) throw new IllegalStateException("No Injector available");
             return injected.getExistingBinding(key);
         }
 
         @Override
         public <X> List<Binding<X>> findBindingsByType(TypeLiteral<X> type) {
-            if (injected != null) throw new IllegalStateException("No Injector available");
+            if (injected == null) throw new IllegalStateException("No Injector available");
             return injected.findBindingsByType(type);
         }
 
         @Override
         public <X> Provider<X> getProvider(Key<X> key) {
-            if (injected != null) throw new IllegalStateException("No Injector available");
+            if (injected == null) throw new IllegalStateException("No Injector available");
             return injected.getProvider(key);
         }
 
         @Override
         public <X> Provider<X> getProvider(Class<X> type) {
-            if (injected != null) throw new IllegalStateException("No Injector available");
+            if (injected == null) throw new IllegalStateException("No Injector available");
             return injected.getProvider(type);
         }
 
         @Override
         public <X> X getInstance(Key<X> key) {
-            if (injected != null) throw new IllegalStateException("No Injector available");
+            if (injected == null) throw new IllegalStateException("No Injector available");
             return injected.getInstance(key);
         }
 
         @Override
         public <X> X getInstance(Class<X> type) {
-            if (injected != null) throw new IllegalStateException("No Injector available");
+            if (injected == null) throw new IllegalStateException("No Injector available");
             return injected.getInstance(type);
         }
 
         @Override
         public Injector getParent() {
-            if (injected != null) throw new IllegalStateException("No Injector available");
+            if (injected == null) throw new IllegalStateException("No Injector available");
             return injected.getParent();
         }
 
         @Override
         public Injector createChildInjector(Iterable<? extends Module> modules) {
-            if (injected != null) throw new IllegalStateException("No Injector available");
+            if (injected == null) throw new IllegalStateException("No Injector available");
             return injected.createChildInjector(modules);
         }
 
         @Override
         public Injector createChildInjector(Module... modules) {
-            if (injected != null) throw new IllegalStateException("No Injector available");
+            if (injected == null) throw new IllegalStateException("No Injector available");
             return injected.createChildInjector(modules);
         }
 
         @Override
         public Map<Class<? extends Annotation>, Scope> getScopeBindings() {
-            if (injected != null) throw new IllegalStateException("No Injector available");
+            if (injected == null) throw new IllegalStateException("No Injector available");
             return injected.getScopeBindings();
         }
 
         @Override
         public Set<TypeConverterBinding> getTypeConverterBindings() {
-            if (injected != null) throw new IllegalStateException("No Injector available");
+            if (injected == null) throw new IllegalStateException("No Injector available");
             return injected.getTypeConverterBindings();
         }
     }
