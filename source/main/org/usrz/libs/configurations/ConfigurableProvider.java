@@ -118,6 +118,24 @@ implements Provider<T> {
         return thisInstance;
     }
 
+    /**
+     * Return a {@link Key} of the specified <em>type</em> with the same
+     * qualifier attributes configured to retrieve the {@link Configurations}
+     * for this instance.
+     */
+    protected final <X> Key<X> key(Class<X> type) {
+        return this.key == null ? Key.get(type) : this.key.ofType(type);
+    }
+
+    /**
+     * Return a {@link Key} of the specified <em>type</em> with the same
+     * qualifier attributes configured to retrieve the {@link Configurations}
+     * for this instance.
+     */
+    protected final <X> Key<X> key(TypeLiteral<X> type) {
+        return this.key == null ? Key.get(type) : this.key.ofType(type);
+    }
+
     /* ====================================================================== */
 
     @Inject
