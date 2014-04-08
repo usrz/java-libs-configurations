@@ -36,6 +36,10 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
+import java.util.function.DoublePredicate;
+import java.util.function.IntPredicate;
+import java.util.function.LongPredicate;
+import java.util.function.Predicate;
 
 /**
  * The {@link Configurations} class is a unmodifiable {@link Map} used to
@@ -565,34 +569,6 @@ public abstract class Configurations implements Map<String, String> {
 
     /**
      * Return the value of associated with the given <em>key</em> as a
-     * <b>byte</b> or the specified <em>default value</em> if no mapping
-     * was found.
-     */
-    public final byte get(Object key, byte defaultValue) {
-        final String value = this.get(key);
-        try {
-            return value == null ? defaultValue : Byte.parseByte(value);
-        } catch (NumberFormatException exception) {
-            throw new ConfigurationsException("Invalid byte " + value + " for key \"" + key + "\"", exception);
-        }
-    }
-
-    /**
-     * Return the value of associated with the given <em>key</em> as a
-     * <b>short</b> or the specified <em>default value</em> if no mapping
-     * was found.
-     */
-    public final short get(Object key, short defaultValue) {
-        final String value = this.get(key);
-        try {
-            return value == null ? defaultValue : Short.parseShort(value);
-        } catch (NumberFormatException exception) {
-            throw new ConfigurationsException("Invalid short " + value + " for key \"" + key + "\"", exception);
-        }
-    }
-
-    /**
-     * Return the value of associated with the given <em>key</em> as a
      * <b>int</b> or the specified <em>default value</em> if no mapping
      * was found.
      */
@@ -616,20 +592,6 @@ public abstract class Configurations implements Map<String, String> {
             return value == null ? defaultValue : Long.parseLong(value);
         } catch (NumberFormatException exception) {
             throw new ConfigurationsException("Invalid long " + value + " for key \"" + key + "\"", exception);
-        }
-    }
-
-    /**
-     * Return the value of associated with the given <em>key</em> as a
-     * <b>float</b> or the specified <em>default value</em> if no mapping
-     * was found.
-     */
-    public final float get(Object key, float defaultValue) {
-        final String value = this.get(key);
-        try {
-            return value == null ? defaultValue : Float.parseFloat(value);
-        } catch (NumberFormatException exception) {
-            throw new ConfigurationsException("Invalid float " + value + " for key \"" + key + "\"", exception);
         }
     }
 
@@ -669,22 +631,6 @@ public abstract class Configurations implements Map<String, String> {
 
     /**
      * Return the value of associated with the given <em>key</em> as a
-     * {@link Byte} or <b>null</b> if no mapping was found.
-     */
-    public final Byte getByte(Object key) {
-        return this.getByte(key, null);
-    }
-
-    /**
-     * Return the value of associated with the given <em>key</em> as a
-     * {@link Short} or <b>null</b> if no mapping was found.
-     */
-    public final Short getShort(Object key) {
-        return this.getShort(key, null);
-    }
-
-    /**
-     * Return the value of associated with the given <em>key</em> as a
      * {@link Integer} or <b>null</b> if no mapping was found.
      */
     public final Integer getInteger(Object key) {
@@ -697,14 +643,6 @@ public abstract class Configurations implements Map<String, String> {
      */
     public final Long getLong(Object key) {
         return this.getLong(key, null);
-    }
-
-    /**
-     * Return the value of associated with the given <em>key</em> as a
-     * {@link Float} or <b>null</b> if no mapping was found.
-     */
-    public final Float getFloat(Object key) {
-        return this.getFloat(key, null);
     }
 
     /**
@@ -724,36 +662,6 @@ public abstract class Configurations implements Map<String, String> {
     }
 
     /* ====================================================================== */
-
-    /**
-     * Return the value of associated with the given <em>key</em> as a
-     * {@link Byte} or the specified <em>default value</em> if no mapping
-     * was found.
-     */
-    public final Byte getByte(Object key, Byte defaultValue) {
-        final String value = this.get(key);
-        if (value == null) return defaultValue;
-        try {
-            return Byte.parseByte(value);
-        } catch (NumberFormatException exception) {
-            throw new ConfigurationsException("Invalid byte " + value + " for key \"" + key + "\"", exception);
-        }
-    }
-
-    /**
-     * Return the value of associated with the given <em>key</em> as a
-     * {@link Short} or the specified <em>default value</em> if no mapping
-     * was found.
-     */
-    public final Short getShort(Object key, Short defaultValue) {
-        final String value = this.get(key);
-        if (value == null) return defaultValue;
-        try {
-            return Short.parseShort(value);
-        } catch (NumberFormatException exception) {
-            throw new ConfigurationsException("Invalid short " + value + " for key \"" + key + "\"", exception);
-        }
-    }
 
     /**
      * Return the value of associated with the given <em>key</em> as a
@@ -782,21 +690,6 @@ public abstract class Configurations implements Map<String, String> {
             return Long.parseLong(value);
         } catch (NumberFormatException exception) {
             throw new ConfigurationsException("Invalid long " + value + " for key \"" + key + "\"", exception);
-        }
-    }
-
-    /**
-     * Return the value of associated with the given <em>key</em> as a
-     * {@link Float} or the specified <em>default value</em> if no mapping
-     * was found.
-     */
-    public final Float getFloat(Object key, Float defaultValue) {
-        final String value = this.get(key);
-        if (value == null) return defaultValue;
-        try {
-            return Float.parseFloat(value);
-        } catch (NumberFormatException exception) {
-            throw new ConfigurationsException("Invalid float " + value + " for key \"" + key + "\"", exception);
         }
     }
 
@@ -848,17 +741,6 @@ public abstract class Configurations implements Map<String, String> {
 
     /**
      * Return the value of associated with the given <em>key</em> as a
-     * <em>byte</em> or throw a {@link ConfigurationsException} if no
-     * mapping was found.
-     */
-    public final byte requireByte(Object key) {
-        final Byte value = this.getByte(key);
-        if (value != null) return value.byteValue();
-        throw new ConfigurationsException("Required byte \"" + key + "\" not found");
-    }
-
-    /**
-     * Return the value of associated with the given <em>key</em> as a
      * <em>double</em> or throw a {@link ConfigurationsException} if no
      * mapping was found.
      */
@@ -877,17 +759,6 @@ public abstract class Configurations implements Map<String, String> {
         final File value = this.getFile(key);
         if (value != null) return value;
         throw new ConfigurationsException("Required file \"" + key + "\" not found");
-    }
-
-    /**
-     * Return the value of associated with the given <em>key</em> as a
-     * <em>float</em> or throw a {@link ConfigurationsException} if no
-     * mapping was found.
-     */
-    public final float requireFloat(Object key) {
-        final Float value = this.getFloat(key);
-        if (value != null) return value.floatValue();
-        throw new ConfigurationsException("Required float \"" + key + "\" not found");
     }
 
     /**
@@ -910,17 +781,6 @@ public abstract class Configurations implements Map<String, String> {
         final Long value = this.getLong(key);
         if (value != null) return value.longValue();
         throw new ConfigurationsException("Required long \"" + key + "\" not found");
-    }
-
-    /**
-     * Return the value of associated with the given <em>key</em> as a
-     * <em>short</em> or throw a {@link ConfigurationsException} if no
-     * mapping was found.
-     */
-    public final short requireShort(Object key) {
-        final Short value = this.getShort(key);
-        if (value != null) return value.shortValue();
-        throw new ConfigurationsException("Required short \"" + key + "\" not found");
     }
 
     /**
@@ -954,6 +814,59 @@ public abstract class Configurations implements Map<String, String> {
         final URL value = this.getURL(key);
         if (value != null) return value;
         throw new ConfigurationsException("Required URL \"" + key + "\" not found");
+    }
+
+    /* ====================================================================== */
+    /* VALUES VALIDATION METHODS                                              */
+    /* ====================================================================== */
+
+    public final double validate(Object key, double defaultValue, DoublePredicate test) {
+        final Double value = this.getDouble(key);
+        if (value == null) return defaultValue;
+        if (test.test(value)) return value;
+        throw new ConfigurationsException("Invalid value \"" + value + "\" for configuration \"" + key + "\"");
+    }
+
+    public final File validate(Object key, File defaultValue, Predicate<File> test) {
+        final File value = this.getFile(key);
+        if (value == null) return defaultValue;
+        if (test.test(value)) return value;
+        throw new ConfigurationsException("Invalid value \"" + value + "\" for configuration \"" + key + "\"");
+    }
+
+    public final int validate(Object key, int defaultValue, IntPredicate test) {
+        final Integer value = this.getInteger(key);
+        if (value == null) return defaultValue;
+        if (test.test(value)) return value;
+        throw new ConfigurationsException("Invalid value \"" + value + "\" for configuration \"" + key + "\"");
+    }
+
+    public final long validate(Object key, long defaultValue, LongPredicate test) {
+        final Long value = this.getLong(key);
+        if (value == null) return defaultValue;
+        if (test.test(value)) return value;
+        throw new ConfigurationsException("Invalid value \"" + value + "\" for configuration \"" + key + "\"");
+    }
+
+    public final String validate(Object key, String defaultValue, Predicate<String> test) {
+        final String value = this.getString(key);
+        if (value == null) return defaultValue;
+        if (test.test(value)) return value;
+        throw new ConfigurationsException("Invalid value \"" + value + "\" for configuration \"" + key + "\"");
+    }
+
+    public final URI validate(Object key, URI defaultValue, Predicate<URI> test) {
+        final URI value = this.getURI(key);
+        if (value == null) return defaultValue;
+        if (test.test(value)) return value;
+        throw new ConfigurationsException("Invalid value \"" + value + "\" for configuration \"" + key + "\"");
+    }
+
+    public final URL validate(Object key, URL defaultValue, Predicate<URL> test) {
+        final URL value = this.getURL(key);
+        if (value == null) return defaultValue;
+        if (test.test(value)) return value;
+        throw new ConfigurationsException("Invalid value \"" + value + "\" for configuration \"" + key + "\"");
     }
 
     /* ====================================================================== */

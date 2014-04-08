@@ -41,8 +41,8 @@ public class ConfigurationsTest extends AbstractTest {
         assertEquals(configurations.get("value.integer", (byte) 1),             123);
         assertEquals(configurations.get("value.integer", (long) 1),             123);
         assertEquals(configurations.get("value.integer", (short) 1),            123);
-        assertEquals(configurations.get("value.real",    456.123F),             123.456F);
-        assertEquals(configurations.get("value.real",    456.123D),             123.456D);
+        assertEquals(configurations.get("value.real",    456.123),              123.456D);
+        assertEquals(configurations.get("value.real",    (float) 456.123),      123.456D);
         assertEquals(configurations.get("value.uri",     new URI("foo:wrong")), new URI("opaque:uri"));
         assertEquals(configurations.get("value.url",     new URL("http://g")),  new URL("http://www.google.com/"));
         assertEquals(configurations.get("value.file",    new File("/bin")),     new File("/etc"));
@@ -53,7 +53,6 @@ public class ConfigurationsTest extends AbstractTest {
         assertEquals(configurations.get("value.missing", (byte) 1),             (byte) 1);
         assertEquals(configurations.get("value.missing", (long) 1),             1);
         assertEquals(configurations.get("value.missing", (short) 1),            (short) 1);
-        assertEquals(configurations.get("value.missing", 456.123F),             456.123F);
         assertEquals(configurations.get("value.missing", 456.123D),             456.123D);
         assertEquals(configurations.get("value.missing", new URI("foo:wrong")), new URI("foo:wrong"));
         assertEquals(configurations.get("value.missing", new URL("http://g")),  new URL("http://g"));
@@ -62,10 +61,7 @@ public class ConfigurationsTest extends AbstractTest {
         assertEquals(configurations.getString ("value.string",  "wrong string"),       "a string");
         assertEquals(configurations.getBoolean("value.boolean", false),                Boolean.TRUE);
         assertEquals(configurations.getInteger("value.integer", 456),                  new Integer(123));
-        assertEquals(configurations.getByte   ("value.integer", (byte) 1),             new Byte((byte)123));
         assertEquals(configurations.getLong   ("value.integer", (long) 1),             new Long(123));
-        assertEquals(configurations.getShort  ("value.integer", (short) 1),            new Short((short)123));
-        assertEquals(configurations.getFloat  ("value.real",    456.123F),             new Float(123.456F));
         assertEquals(configurations.getDouble ("value.real",    456.123D),             new Double(123.456D));
         assertEquals(configurations.getURI    ("value.uri",     new URI("foo:wrong")), new URI("opaque:uri"));
         assertEquals(configurations.getURL    ("value.url",     new URL("http://g")),  new URL("http://www.google.com/"));
@@ -74,10 +70,7 @@ public class ConfigurationsTest extends AbstractTest {
         assertEquals(configurations.getString ("value.string"),  "a string");
         assertEquals(configurations.getBoolean("value.boolean"), Boolean.TRUE);
         assertEquals(configurations.getInteger("value.integer"), new Integer(123));
-        assertEquals(configurations.getByte   ("value.integer"), new Byte((byte)123));
         assertEquals(configurations.getLong   ("value.integer"), new Long(123));
-        assertEquals(configurations.getShort  ("value.integer"), new Short((short)123));
-        assertEquals(configurations.getFloat  ("value.real"),    new Float(123.456F));
         assertEquals(configurations.getDouble ("value.real"),    new Double(123.456D));
         assertEquals(configurations.getURI    ("value.uri"),     new URI("opaque:uri"));
         assertEquals(configurations.getURL    ("value.url"),     new URL("http://www.google.com/"));
@@ -86,10 +79,7 @@ public class ConfigurationsTest extends AbstractTest {
         assertEquals(configurations.getString ("value.missing", "wrong string"),       "wrong string");
         assertEquals(configurations.getBoolean("value.missing", false),                Boolean.FALSE);
         assertEquals(configurations.getInteger("value.missing", 456),                  new Integer(456));
-        assertEquals(configurations.getByte   ("value.missing", (byte) 1),             new Byte((byte) 1));
         assertEquals(configurations.getLong   ("value.missing", (long) 1),             new Long(1));
-        assertEquals(configurations.getShort  ("value.missing", (short) 1),            new Short((short) 1));
-        assertEquals(configurations.getFloat  ("value.missing", 456.123F),             new Float(456.123F));
         assertEquals(configurations.getDouble ("value.missing", 456.123D),             new Double(456.123D));
         assertEquals(configurations.getURI    ("value.missing", new URI("foo:wrong")), new URI("foo:wrong"));
         assertEquals(configurations.getURL    ("value.missing", new URL("http://g")),  new URL("http://g"));
@@ -98,10 +88,7 @@ public class ConfigurationsTest extends AbstractTest {
         assertEquals(configurations.getString ("value.missing"), null);
         assertEquals(configurations.getBoolean("value.missing"), null);
         assertEquals(configurations.getInteger("value.missing"), null);
-        assertEquals(configurations.getByte   ("value.missing"), null);
         assertEquals(configurations.getLong   ("value.missing"), null);
-        assertEquals(configurations.getShort  ("value.missing"), null);
-        assertEquals(configurations.getFloat  ("value.missing"), null);
         assertEquals(configurations.getDouble ("value.missing"), null);
         assertEquals(configurations.getURI    ("value.missing"), null);
         assertEquals(configurations.getURL    ("value.missing"), null);
