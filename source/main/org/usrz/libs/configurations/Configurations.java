@@ -25,6 +25,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.time.Duration;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -472,6 +474,14 @@ public abstract class Configurations implements Map<String, String> {
 
     /**
      * Return the value of associated with the given <em>key</em> as a
+     * {@link Duration} or <b>null</b> if no mapping was found.
+     */
+    public final Duration getDuration(Object key) {
+        return this.getDuration(key, null);
+    }
+
+    /**
+     * Return the value of associated with the given <em>key</em> as a
      * {@link File} or <b>null</b> if no mapping was found.
      */
     public final File getFile(Object key) {
@@ -495,6 +505,15 @@ public abstract class Configurations implements Map<String, String> {
     }
 
     /* ====================================================================== */
+
+    /**
+     * Return the value of associated with the given <em>key</em> as a
+     * {@link Duration} or the specified <em>default value</em> if no mapping
+     * was found.
+     */
+    public final Duration getDuration(Object key, Duration defaultValue) {
+        return this.get(key, defaultValue);
+    }
 
     /**
      * Return the value of associated with the given <em>key</em> as a
@@ -527,6 +546,20 @@ public abstract class Configurations implements Map<String, String> {
 
     /**
      * Return the value of associated with the given <em>key</em> as a
+     * {@link Duration} or the specified <em>default value</em> if no mapping
+     * was found.
+     */
+    public final Duration get(Object key, Duration defaultValue) {
+        final String value = this.get(key);
+        try {
+            return value == null ? defaultValue : duration(value);
+        } catch (DateTimeParseException exception) {
+            throw new ConfigurationsException("Invalid duration \"" + value + "\"", exception);
+        }
+    }
+
+    /**
+     * Return the value of associated with the given <em>key</em> as a
      * {@link File} or the specified <em>default value</em> if no mapping
      * was found.
      */
@@ -545,7 +578,7 @@ public abstract class Configurations implements Map<String, String> {
         try {
             return value == null ? defaultValue : new URL(value);
         } catch (MalformedURLException exception) {
-            throw new ConfigurationsException("Unvalid URL " + value + " for key \"" + key + "\"", exception);
+            throw new ConfigurationsException("Invalid URL " + value + " for key \"" + key + "\"", exception);
         }
     }
 
@@ -559,7 +592,7 @@ public abstract class Configurations implements Map<String, String> {
         try {
             return value == null ? defaultValue : new URI(value);
         } catch (URISyntaxException exception) {
-            throw new ConfigurationsException("Unvalid URI " + value + " for key \"" + key + "\"", exception);
+            throw new ConfigurationsException("Invalid URI " + value + " for key \"" + key + "\"", exception);
         }
     }
 
@@ -752,6 +785,17 @@ public abstract class Configurations implements Map<String, String> {
 
     /**
      * Return the value of associated with the given <em>key</em> as a
+     * {@link Duration} or throw a {@link ConfigurationsException} if no
+     * mapping was found.
+     */
+    public final Duration requireDuration(Object key) {
+        final Duration value = getDuration(key);
+        if (value != null) return value;
+        throw new ConfigurationsException("Required  duration \"" + key + "\" not found");
+    }
+
+    /**
+     * Return the value of associated with the given <em>key</em> as a
      * {@link File} or throw a {@link ConfigurationsException} if no
      * mapping was found.
      */
@@ -822,6 +866,13 @@ public abstract class Configurations implements Map<String, String> {
 
     public final double validate(Object key, double defaultValue, DoublePredicate test) {
         final Double value = this.getDouble(key);
+        if (value == null) return defaultValue;
+        if (test.test(value)) return value;
+        throw new ConfigurationsException("Invalid value \"" + value + "\" for configuration \"" + key + "\"");
+    }
+
+    public final Duration validate(Object key, Duration defaultValue, Predicate<Duration> test) {
+        final Duration value = getDuration(key);
         if (value == null) return defaultValue;
         if (test.test(value)) return value;
         throw new ConfigurationsException("Invalid value \"" + value + "\" for configuration \"" + key + "\"");
@@ -1068,4 +1119,16 @@ public abstract class Configurations implements Map<String, String> {
     public final void clear() {
         throw new UnsupportedOperationException();
     }
+
+    /* ====================================================================== */
+
+    private Duration duration(String what) {
+        return Duration.parse(what.toUpperCase()
+                                  .replaceAll("\\s", "")
+                                  .replaceAll("^(P)?", "P")
+                                  .replaceAll("MIN(UTE)?(S)?", "M")
+                                  .replaceAll("H(OU)?R(S)?", "H")
+                                  .replaceAll("SEC(OND)?(S)?", "S")
+                                  .replaceAll("D(AY(S)?)?(T)?", "DT"));
+        }
 }
