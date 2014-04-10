@@ -38,6 +38,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
+import java.util.UUID;
 import java.util.function.DoublePredicate;
 import java.util.function.IntPredicate;
 import java.util.function.LongPredicate;
@@ -474,6 +475,14 @@ public abstract class Configurations implements Map<String, String> {
 
     /**
      * Return the value of associated with the given <em>key</em> as a
+     * {@link UUID} or <b>null</b> if no mapping was found.
+     */
+    public final UUID getUUID(Object key) {
+        return this.getUUID(key, null);
+    }
+
+    /**
+     * Return the value of associated with the given <em>key</em> as a
      * {@link Duration} or <b>null</b> if no mapping was found.
      */
     public final Duration getDuration(Object key) {
@@ -505,6 +514,15 @@ public abstract class Configurations implements Map<String, String> {
     }
 
     /* ====================================================================== */
+
+    /**
+     * Return the value of associated with the given <em>key</em> as a
+     * {@link UUID} or the specified <em>default value</em> if no mapping
+     * was found.
+     */
+    public final UUID getUUID(Object key, UUID defaultValue) {
+        return this.get(key, defaultValue);
+    }
 
     /**
      * Return the value of associated with the given <em>key</em> as a
@@ -543,6 +561,20 @@ public abstract class Configurations implements Map<String, String> {
     }
 
     /* ====================================================================== */
+
+    /**
+     * Return the value of associated with the given <em>key</em> as a
+     * {@link UUID} or the specified <em>default value</em> if no mapping
+     * was found.
+     */
+    public final UUID get(Object key, UUID defaultValue) {
+        final String value = this.get(key);
+        try {
+            return value == null ? defaultValue : UUID.fromString(value);
+        } catch (IllegalArgumentException exception) {
+            throw new ConfigurationsException("Invalid UUID " + value + " for key \"" + key + "\"", exception);
+        }
+    }
 
     /**
      * Return the value of associated with the given <em>key</em> as a
@@ -781,6 +813,17 @@ public abstract class Configurations implements Map<String, String> {
 
     /**
      * Return the value of associated with the given <em>key</em> as a
+     * {@link UUID} or throw a {@link ConfigurationsException} if no
+     * mapping was found.
+     */
+    public final UUID requireDuration(UUID key) {
+        final UUID value = getUUID(key);
+        if (value != null) return value;
+        throw new ConfigurationsException("Required  UUID \"" + key + "\" not found");
+    }
+
+    /**
+     * Return the value of associated with the given <em>key</em> as a
      * {@link Duration} or throw a {@link ConfigurationsException} if no
      * mapping was found.
      */
@@ -862,6 +905,13 @@ public abstract class Configurations implements Map<String, String> {
 
     public final double validate(Object key, double defaultValue, DoublePredicate test) {
         final Double value = this.getDouble(key);
+        if (value == null) return defaultValue;
+        if (test.test(value)) return value;
+        throw new ConfigurationsException("Invalid value \"" + value + "\" for configuration \"" + key + "\"");
+    }
+
+    public final UUID validate(Object key, UUID defaultValue, Predicate<UUID> test) {
+        final UUID value = getUUID(key);
         if (value == null) return defaultValue;
         if (test.test(value)) return value;
         throw new ConfigurationsException("Invalid value \"" + value + "\" for configuration \"" + key + "\"");
