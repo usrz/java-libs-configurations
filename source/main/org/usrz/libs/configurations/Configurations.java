@@ -551,11 +551,7 @@ public abstract class Configurations implements Map<String, String> {
      */
     public final Duration get(Object key, Duration defaultValue) {
         final String value = this.get(key);
-        try {
-            return value == null ? defaultValue : duration(value);
-        } catch (DateTimeParseException exception) {
-            throw new ConfigurationsException("Invalid duration \"" + value + "\"", exception);
-        }
+        return value == null ? defaultValue : duration(value);
     }
 
     /**
@@ -1123,12 +1119,18 @@ public abstract class Configurations implements Map<String, String> {
     /* ====================================================================== */
 
     private Duration duration(String what) {
-        return Duration.parse(what.toUpperCase()
-                                  .replaceAll("\\s", "")
-                                  .replaceAll("^(P)?", "P")
-                                  .replaceAll("MIN(UTE)?(S)?", "M")
-                                  .replaceAll("H(OU)?R(S)?", "H")
-                                  .replaceAll("SEC(OND)?(S)?", "S")
-                                  .replaceAll("D(AY(S)?)?(T)?", "DT"));
+        final String converted = what.toUpperCase()
+                                     .replaceAll("\\s", "")
+                                     .replaceAll("^(P)?", "P")
+                                     .replaceAll("MIN(UTE)?(S)?", "M")
+                                     .replaceAll("H(OU)?R(S)?", "H")
+                                     .replaceAll("SEC(OND)?(S)?", "S")
+                                     .replaceAll("D(AY(S)?)?(T)?", "DT")
+                                     .replaceAll("^P([^T]+)$", "PT$1");
+        try {
+            return Duration.parse(converted);
+        } catch (DateTimeParseException exception) {
+            throw new ConfigurationsException("Invalid duration \"" + what + "\" (" + converted + ")", exception);
         }
+    }
 }
