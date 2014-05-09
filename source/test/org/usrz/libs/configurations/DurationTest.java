@@ -47,6 +47,7 @@ public class DurationTest extends AbstractTest {
                 .put("test-34", "3 hours")
                 .put("test-35", "4m")
                 .put("test-36", "59s")
+                .put("test-37", "1d")
                 .build();
 
         assertEquals(configurations.getDuration("test-11"), Duration.parse("PT51H3M5.22S"));
@@ -71,5 +72,6 @@ public class DurationTest extends AbstractTest {
         assertEquals(configurations.getDuration("test-34"), Duration.parse("PT3H"));
         assertEquals(configurations.getDuration("test-35"), Duration.parse("PT4M"));
         assertEquals(configurations.getDuration("test-36"), Duration.parse("PT59S"));
+        assertEquals(configurations.getDuration("test-37"), Duration.parse("PT24H"));
     }
 }

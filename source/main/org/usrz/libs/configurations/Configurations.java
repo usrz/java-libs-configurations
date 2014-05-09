@@ -1176,7 +1176,8 @@ public abstract class Configurations implements Map<String, String> {
                                      .replaceAll("H(OU)?R(S)?", "H")
                                      .replaceAll("SEC(OND)?(S)?", "S")
                                      .replaceAll("D(AY(S)?)?(T)?", "DT")
-                                     .replaceAll("^P([^T]+)$", "PT$1");
+                                     .replaceAll("^P([^T]+)$", "PT$1")
+                                     .replaceAll("^P([^T]+)T$", "P$1T0M");
         try {
             return Duration.parse(converted);
         } catch (DateTimeParseException exception) {
