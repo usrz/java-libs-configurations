@@ -18,25 +18,17 @@ package org.usrz.libs.configurations;
 import static org.usrz.libs.configurations.Configurations.EMPTY_CONFIGURATIONS;
 
 import java.lang.annotation.Annotation;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Provider;
 import javax.inject.Qualifier;
 
 import com.google.inject.Binding;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.MembersInjector;
-import com.google.inject.Module;
-import com.google.inject.Provider;
-import com.google.inject.Scope;
+import com.google.inject.ProvisionException;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
-import com.google.inject.spi.TypeConverterBinding;
 
 /**
  * A simple provider which can be <em>configured</em>
@@ -51,19 +43,19 @@ import com.google.inject.spi.TypeConverterBinding;
  */
 @SuppressWarnings("restriction")
 public abstract class ConfigurableProvider<T, P extends ConfigurableProvider<T, P>>
-implements Provider<T> {
+implements javax.inject.Provider<T>,
+           com.google.inject.Provider<T> {
 
     private static final Key<Configurations> KEY = Key.get(Configurations.class);
 
     @SuppressWarnings("unchecked")
     private final P thisInstance = (P) this;
+    private final boolean singleton;
 
-    protected final Configurations configurations = new DelegateConfigurations();
-    protected final Injector injector = new DelegateInjector();
-
-    private Configurations configured = EMPTY_CONFIGURATIONS;
+    private Configurations configurations = EMPTY_CONFIGURATIONS;
     private Key<Configurations> key;
-    private Injector injected;
+    private Injector injector;
+    private T instance;
 
     /* ====================================================================== */
 
@@ -71,6 +63,14 @@ implements Provider<T> {
      * Create a new {@link ConfigurableProvider} instance.
      */
     protected ConfigurableProvider() {
+        this(true);
+    }
+
+    /**
+     * Create a new {@link ConfigurableProvider} instance.
+     */
+    protected ConfigurableProvider(boolean singleton) {
+        this.singleton = singleton;
         this.key = KEY;
     }
 
@@ -82,7 +82,7 @@ implements Provider<T> {
      */
     public final P with(Configurations configurations) {
         if (configurations == null) throw new NullPointerException("Null Configurations");
-        this.configured = configurations;
+        this.configurations = configurations;
         this.key = null;
         return thisInstance;
     }
@@ -138,13 +138,13 @@ implements Provider<T> {
 
     /* ====================================================================== */
 
-    @Inject
+    @javax.inject.Inject @com.google.inject.Inject
     private void setInjector(Injector injector) {
-        this.injected = injector;
-        if (key != null) this.configured = getConfigurations();
+        if (key != null) this.configurations = getConfigurations(injector);
+        this.injector = injector;
     }
 
-    private Configurations getConfigurations() {
+    private Configurations getConfigurations(Injector injector) {
 
         /* Fully annotated? */
         Binding<Configurations> binding = injector.getExistingBinding(key);
@@ -168,135 +168,28 @@ implements Provider<T> {
 
     /* ====================================================================== */
 
-    private class DelegateInjector implements Injector {
+    @Override
+    public final T get() {
+        if (instance != null) return instance;
 
-        @Override
-        public void injectMembers(Object instance) {
-            if (injected == null) throw new IllegalStateException("No Injector available");
-            injected.injectMembers(instance);
-        }
-
-        @Override
-        public <X> MembersInjector<X> getMembersInjector(TypeLiteral<X> typeLiteral) {
-            if (injected == null) throw new IllegalStateException("No Injector available");
-            return injected.getMembersInjector(typeLiteral);
-        }
-
-        @Override
-        public <X> MembersInjector<X> getMembersInjector(Class<X> type) {
-            if (injected == null) throw new IllegalStateException("No Injector available");
-            return injected.getMembersInjector(type);
-        }
-
-        @Override
-        public Map<Key<?>, Binding<?>> getBindings() {
-            if (injected == null) throw new IllegalStateException("No Injector available");
-            return injected.getBindings();
-        }
-
-        @Override
-        public Map<Key<?>, Binding<?>> getAllBindings() {
-            if (injected == null) throw new IllegalStateException("No Injector available");
-            return injected.getAllBindings();
-        }
-
-        @Override
-        public <X> Binding<X> getBinding(Key<X> key) {
-            if (injected == null) throw new IllegalStateException("No Injector available");
-            return injected.getBinding(key);
-        }
-
-        @Override
-        public <X> Binding<X> getBinding(Class<X> type) {
-            if (injected == null) throw new IllegalStateException("No Injector available");
-            return injected.getBinding(type);
-        }
-
-        @Override
-        public <X> Binding<X> getExistingBinding(Key<X> key) {
-            if (injected == null) throw new IllegalStateException("No Injector available");
-            return injected.getExistingBinding(key);
-        }
-
-        @Override
-        public <X> List<Binding<X>> findBindingsByType(TypeLiteral<X> type) {
-            if (injected == null) throw new IllegalStateException("No Injector available");
-            return injected.findBindingsByType(type);
-        }
-
-        @Override
-        public <X> Provider<X> getProvider(Key<X> key) {
-            if (injected == null) throw new IllegalStateException("No Injector available");
-            return injected.getProvider(key);
-        }
-
-        @Override
-        public <X> Provider<X> getProvider(Class<X> type) {
-            if (injected == null) throw new IllegalStateException("No Injector available");
-            return injected.getProvider(type);
-        }
-
-        @Override
-        public <X> X getInstance(Key<X> key) {
-            if (injected == null) throw new IllegalStateException("No Injector available");
-            return injected.getInstance(key);
-        }
-
-        @Override
-        public <X> X getInstance(Class<X> type) {
-            if (injected == null) throw new IllegalStateException("No Injector available");
-            return injected.getInstance(type);
-        }
-
-        @Override
-        public Injector getParent() {
-            if (injected == null) throw new IllegalStateException("No Injector available");
-            return injected.getParent();
-        }
-
-        @Override
-        public Injector createChildInjector(Iterable<? extends Module> modules) {
-            if (injected == null) throw new IllegalStateException("No Injector available");
-            return injected.createChildInjector(modules);
-        }
-
-        @Override
-        public Injector createChildInjector(Module... modules) {
-            if (injected == null) throw new IllegalStateException("No Injector available");
-            return injected.createChildInjector(modules);
-        }
-
-        @Override
-        public Map<Class<? extends Annotation>, Scope> getScopeBindings() {
-            if (injected == null) throw new IllegalStateException("No Injector available");
-            return injected.getScopeBindings();
-        }
-
-        @Override
-        public Set<TypeConverterBinding> getTypeConverterBindings() {
-            if (injected == null) throw new IllegalStateException("No Injector available");
-            return injected.getTypeConverterBindings();
+        if (injector == null) throw new ProvisionException("Injector not available in " + this.getClass().getName());
+        try {
+            final T instance = this.get(injector, configurations);
+            if (instance == null) {
+                throw new ProvisionException("Null instance returned by " + this.getClass().getName());
+            } else if (singleton) {
+                this.instance = instance;
+            }
+            return instance;
+        } catch (Exception exception) {
+            throw new ProvisionException("Exception providing instance in " + this.getClass().getName(), exception);
         }
     }
 
-    /* ====================================================================== */
+    /**
+     * Create an instance of the object to provide.
+     */
+    protected abstract T get(Injector injector, Configurations configurations)
+    throws Exception;
 
-    private class DelegateConfigurations extends Configurations {
-
-        @Override
-        public String getString(Object key, String defaultValue) {
-            return configured == null ? defaultValue : configured.getString(key, defaultValue);
-        }
-
-        @Override
-        public Set<java.util.Map.Entry<String, String>> entrySet() {
-            return configured == null ? Collections.emptySet() : configured.entrySet();
-        }
-
-        @Override
-        public int size() {
-            return configured == null ? 0 : configured.size();
-        }
-
-    }
 }

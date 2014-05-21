@@ -27,6 +27,7 @@ import org.usrz.libs.testing.AbstractTest;
 
 import com.google.inject.Binder;
 import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
 
@@ -113,7 +114,7 @@ public class ConfigurableProviderTest extends AbstractTest {
     public static class TestProvider extends ConfigurableProvider<String, TestProvider> {
 
         @Override
-        public String get() {
+        public String get(Injector injector, Configurations configurations) {
             return configurations.get("foo", "defaultValue");
         }
 
