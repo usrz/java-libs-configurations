@@ -19,6 +19,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Retention;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Qualifier;
 
@@ -27,6 +28,7 @@ import org.usrz.libs.testing.AbstractTest;
 
 import com.google.inject.Binder;
 import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
 
@@ -34,66 +36,66 @@ public class ConfigurableProviderTest extends AbstractTest {
 
     @Test
     public void testUnannotated() {
-        final String string = Guice.createInjector(new TestModule(),
-                (binder) -> binder.bind(String.class).toProvider(TestProvider.class)
-            ).getInstance(String.class);
-        assertEquals(string, "unannotated");
+        final TestObject instance = Guice.createInjector(new TestModule(),
+                (binder) -> binder.bind(TestObject.class).toProvider(TestProvider.class)
+            ).getInstance(TestObject.class);
+        assertEquals(instance.getString(), "unannotated");
     }
 
     @Test
     public void testUnannotatedInstance() {
-        final String string = Guice.createInjector(new TestModule(),
-                (binder) -> binder.bind(String.class).toProvider(new TestProvider())
-            ).getInstance(String.class);
-        assertEquals(string, "unannotated");
+        final TestObject instance = Guice.createInjector(new TestModule(),
+                (binder) -> binder.bind(TestObject.class).toProvider(new TestProvider())
+            ).getInstance(TestObject.class);
+        assertEquals(instance.getString(), "unannotated");
     }
 
     @Test
     public void testUnannotatedOverridden() {
-        final String string = Guice.createInjector(new TestModule(),
-                (binder) -> binder.bind(String.class).toProvider(new TestProvider().with(new ConfigurationsBuilder().put("foo", "override").build()))
-            ).getInstance(String.class);
-        assertEquals(string, "override");
+        final TestObject instance = Guice.createInjector(new TestModule(),
+                (binder) -> binder.bind(TestObject.class).toProvider(new TestProvider().with(new ConfigurationsBuilder().put("foo", "override").build()))
+            ).getInstance(TestObject.class);
+        assertEquals(instance.getString(), "override");
     }
 
     @Test
     public void testAnnotationType() {
-        final String string = Guice.createInjector(new TestModule(),
-                (binder) -> binder.bind(String.class).toProvider(new TestProvider().with(TestAnnotation.class))
-            ).getInstance(String.class);
-        assertEquals(string, "withAnnotationType");
+        final TestObject instance = Guice.createInjector(new TestModule(),
+                (binder) -> binder.bind(TestObject.class).toProvider(new TestProvider().with(TestAnnotation.class))
+            ).getInstance(TestObject.class);
+        assertEquals(instance.getString(), "withAnnotationType");
     }
 
     @Test
     public void testAnnotationTypeUnbound() {
-        final String string = Guice.createInjector(new TestModule(),
-                (binder) -> binder.bind(String.class).toProvider(new TestProvider().with(Named.class))
-            ).getInstance(String.class);
-        assertEquals(string, "unannotated");
+        final TestObject instance = Guice.createInjector(new TestModule(),
+                (binder) -> binder.bind(TestObject.class).toProvider(new TestProvider().with(Named.class))
+            ).getInstance(TestObject.class);
+        assertEquals(instance.getString(), "unannotated");
     }
 
     @Test
     public void testAnnotation() {
-        final String string = Guice.createInjector(new TestModule(),
-                (binder) -> binder.bind(String.class).toProvider(new TestProvider().with("named"))
-            ).getInstance(String.class);
-        assertEquals(string, "withAnnotation");
+        final TestObject instance = Guice.createInjector(new TestModule(),
+                (binder) -> binder.bind(TestObject.class).toProvider(new TestProvider().with("named"))
+            ).getInstance(TestObject.class);
+        assertEquals(instance.getString(), "withAnnotation");
     }
 
     @Test
     public void testAnnotationUnbound() {
-        final String string = Guice.createInjector(new TestModule(),
-                (binder) -> binder.bind(String.class).toProvider(new TestProvider().with("blah"))
-            ).getInstance(String.class);
-        assertEquals(string, "unannotated");
+        final TestObject instance = Guice.createInjector(new TestModule(),
+                (binder) -> binder.bind(TestObject.class).toProvider(new TestProvider().with("blah"))
+            ).getInstance(TestObject.class);
+        assertEquals(instance.getString(), "unannotated");
     }
 
     @Test
     public void testUnbound() {
-        final String string = Guice.createInjector(
-                (binder) -> binder.bind(String.class).toProvider(new TestProvider().with("blah"))
-            ).getInstance(String.class);
-        assertEquals(string, "defaultValue");
+        final TestObject instance = Guice.createInjector(
+                (binder) -> binder.bind(TestObject.class).toProvider(new TestProvider().with("blah"))
+            ).getInstance(TestObject.class);
+        assertEquals(instance.getString(), "defaultValue");
     }
 
     @Qualifier
@@ -110,12 +112,32 @@ public class ConfigurableProviderTest extends AbstractTest {
         }
     }
 
-    public static class TestProvider extends ConfigurableProvider<String, TestProvider> {
+    public static class TestProvider extends ConfigurableProvider<TestObject, TestProvider> {
 
         @Override
-        protected String get(Configurations configurations) {
-            return configurations.get("foo", "defaultValue");
+        protected TestObject get(Configurations configurations) {
+            return new TestObject(configurations);
         }
 
+    }
+
+    public static class TestObject {
+
+        private final String string;
+        private boolean injected = false;
+
+        private TestObject(Configurations configurations) {
+            string = configurations.get("foo", "defaultValue");
+        }
+
+        @Inject
+        private void injectMe(Injector injector) {
+            injected = true;
+        }
+
+        public String getString() {
+            if (injected) return string;
+            throw new IllegalStateException("Not injected");
+        }
     }
 }

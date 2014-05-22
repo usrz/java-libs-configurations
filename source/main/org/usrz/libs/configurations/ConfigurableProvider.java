@@ -184,6 +184,7 @@ implements javax.inject.Provider<T>,
             } else if (singleton) {
                 this.instance = instance;
             }
+            injector.injectMembers(instance);
             return instance;
         } catch (Exception exception) {
             throw new ProvisionException("Exception providing instance in " + this.getClass().getName(), exception);
