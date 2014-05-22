@@ -36,6 +36,10 @@ import com.google.inject.name.Names;
  * By default, the {@link Configurations} {@linkplain #configurations accessible
  * from this} are gathered from an {@link Injector} keyed without any
  * {@link Qualifier} {@link Annotation}.
+ * <p>
+ * Concrete implementations of this class <b>must</b> override either the
+ * {@link #get(Injector, Configurations) or the {@link #get(Configurations)}
+ * method.
  *
  * @author <a href="mailto:pier@usrz.com">Pier Fumagalli</a>
  * @param <T> The type of instances managed by this {@link Provider}.
@@ -187,9 +191,27 @@ implements javax.inject.Provider<T>,
     }
 
     /**
-     * Create an instance of the object to provide.
+     * Create an instance of the object to provide using the specified
+     * {@link Injector} and {@link Configurations}.
+     * <p>
+     * Concrete implementations of this class <b>must</b> either override this
+     * or the {@link #get(Configurations)} method.
      */
-    protected abstract T get(Injector injector, Configurations configurations)
-    throws Exception;
+    protected T get(Injector injector, Configurations configurations)
+    throws Exception {
+        return get(configurations);
+    }
+
+    /**
+     * Create an instance of the object to provide using the specified
+     * {@link Configurations}.
+     * <p>
+     * Concrete implementations of this class <b>must</b> either override this
+     * or the {@link #get(Injector, Configurations)} method.
+     */
+    protected T get(Configurations configurations)
+    throws Exception {
+        throw new UnsupportedOperationException("Method not implemented");
+    }
 
 }
