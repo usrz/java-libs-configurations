@@ -22,9 +22,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.usrz.libs.configurations.Configurations;
-import org.usrz.libs.configurations.ConfigurationsException;
-import org.usrz.libs.configurations.MappedConfigurations;
 import org.usrz.libs.logging.Log;
 
 /**
@@ -36,7 +33,7 @@ import org.usrz.libs.logging.Log;
 public class MappedConfigurations extends Configurations {
 
     /* Pattern for validating configuration keys */
-    private static final Pattern NAME_PATTERN = Pattern.compile("^([\\w-]+(\\.[\\w-]+)*)?$");
+    private static final Pattern NAME_PATTERN = Pattern.compile("^([\\w\\$-]+(\\.[\\w\\$-]+)*)?$");
     /* Our logger */
     private static final Log log = new Log();
 
