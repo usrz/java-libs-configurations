@@ -70,6 +70,11 @@ public abstract class Configurations implements Map<String, String> {
         }
 
         @Override
+        public Password getPassword(Object key) {
+            return null;
+        }
+
+        @Override
         public Set<Entry<String, String>> entrySet() {
             return Collections.emptySet();
         }
@@ -78,6 +83,7 @@ public abstract class Configurations implements Map<String, String> {
         public int size() {
             return 0;
         }
+
     };
 
     /* Platform-dependant line separator to save configurations */
@@ -101,6 +107,18 @@ public abstract class Configurations implements Map<String, String> {
     /* ====================================================================== */
 
     /**
+     * A method used by concrete implementations of this class to provide
+     * <i>specific</i> implementations of a {@link Configuration}.
+     *
+     * <p>The default implementation of this method will simply return new
+     * {@link MappedConfigurations} instance constructed with the given
+     * {@link Map}.</p>
+     */
+    protected Configurations wrap(Map<?, ?> map) {
+        return new MappedConfigurations(map){};
+    }
+
+    /**
      * Merge the mappings from the specified {@link Map} with those contained by
      * this instance and return a <em>new</em> {@link Configurations} instance.
      *
@@ -112,7 +130,7 @@ public abstract class Configurations implements Map<String, String> {
         final Map<Object, Object> configurations = new HashMap<>();
         configurations.putAll(map);
         configurations.putAll(this);
-        return new MappedConfigurations(configurations);
+        return wrap(configurations);
     }
 
     /**
@@ -129,7 +147,7 @@ public abstract class Configurations implements Map<String, String> {
         final Map<Object, Object> configurations = new HashMap<>();
         configurations.putAll(this);
         configurations.putAll(map);
-        return new MappedConfigurations(configurations);
+        return wrap(configurations);
     }
 
     /* ====================================================================== */
@@ -168,7 +186,7 @@ public abstract class Configurations implements Map<String, String> {
             configurations.put(prefix + entry.getKey(), entry.getValue());
 
         /* All done */
-        return new MappedConfigurations(configurations);
+        return wrap(configurations);
     }
 
     /**
@@ -210,7 +228,7 @@ public abstract class Configurations implements Map<String, String> {
         }
 
         /* All done */
-        return new MappedConfigurations(configurations);
+        return wrap(configurations);
     }
 
     /**
@@ -254,7 +272,7 @@ public abstract class Configurations implements Map<String, String> {
         }
 
         /* All done */
-        return new MappedConfigurations(configurations);
+        return wrap(configurations);
     }
 
     /* ====================================================================== */
@@ -970,11 +988,21 @@ public abstract class Configurations implements Map<String, String> {
     /* Password methods (require secure configurations)                       */
     /* ====================================================================== */
 
-    public Password getPassword(Object key)
-    throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Unable to secure \"" + key + "\"");
-    }
+    /**
+     * Return a <i>destroyable</i> {@link Password} instance associated with
+     * the key, or <b>null</b>.
+     * <p>
+     * This method will throw an {@link UnsupportedOperationException} in case
+     * the password can not be retrieved <i>securely</i> (in other words, if
+     * the character array backing it can <i>not</i> be wiped, as in the case
+     * of {@link String}s.
+     */
+    public abstract Password getPassword(Object key);
 
+    /**
+     * Return a <i>destroyable</i> {@link Password} instance associated with
+     * the key, or fail with a {@link ConfigurationsException}.
+     */
     public Password requirePassword(Object key)
     throws UnsupportedOperationException {
         final Password value = getPassword(key);
