@@ -816,7 +816,7 @@ public abstract class Configurations implements Map<String, String> {
      * {@link UUID} or throw a {@link ConfigurationsException} if no
      * mapping was found.
      */
-    public final UUID requireDuration(UUID key) {
+    public final UUID requireUUID(Object key) {
         final UUID value = getUUID(key);
         if (value != null) return value;
         throw new ConfigurationsException("Required  UUID \"" + key + "\" not found");
