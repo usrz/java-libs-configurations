@@ -967,6 +967,22 @@ public abstract class Configurations implements Map<String, String> {
     }
 
     /* ====================================================================== */
+    /* Password methods (require secure configurations)                       */
+    /* ====================================================================== */
+
+    public Password getPassword(Object key)
+    throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Unable to secure \"" + key + "\"");
+    }
+
+    public Password requirePassword(Object key)
+    throws UnsupportedOperationException {
+        final Password value = getPassword(key);
+        if (value != null) return value;
+        throw new ConfigurationsException("Required password \"" + key + "\" not found");
+    }
+
+    /* ====================================================================== */
     /* UNMODIFIABLE COLLECTION METHODS                                        */
     /* ====================================================================== */
 
