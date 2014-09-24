@@ -18,10 +18,11 @@ package org.usrz.libs.configurations;
 import java.io.Closeable;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.function.Supplier;
 
 import javax.security.auth.Destroyable;
 
-public final class Password implements Destroyable, Closeable {
+public final class Password implements Supplier<char[]>, Destroyable, Closeable {
 
     private static final SecureRandom random = new SecureRandom();
 
@@ -35,6 +36,7 @@ public final class Password implements Destroyable, Closeable {
         this.password = password;
     }
 
+    @Override
     public char[] get() {
         synchronized (lock) {
             if (!destroyed) return password;
@@ -45,6 +47,8 @@ public final class Password implements Destroyable, Closeable {
     @Override
     public void close() {
         synchronized (lock) {
+            if (destroyed) return;
+
             /* First iteration, random characters */
             for (int x = 0; x < password.length; x ++) {
                 password[x] = (char) random.nextInt();
@@ -67,6 +71,4 @@ public final class Password implements Destroyable, Closeable {
             return destroyed;
         }
     }
-
-
 }
