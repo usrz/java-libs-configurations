@@ -21,11 +21,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.usrz.libs.configurations.Configurations;
-import org.usrz.libs.configurations.ConfigurationsBuilder;
-import org.usrz.libs.configurations.ConfigurationsException;
-import org.usrz.libs.configurations.MappedConfigurations;
-
 /**
  * A simple builder for {@link Configurations} instances.
  *
@@ -48,7 +43,7 @@ public class ConfigurationsBuilder {
      */
     public Configurations build()
     throws ConfigurationsException {
-        return new MappedConfigurations(configurations);
+        return new MappedConfigurations(configurations){};
     }
 
     /**

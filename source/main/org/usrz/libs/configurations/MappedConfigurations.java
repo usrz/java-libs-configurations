@@ -30,7 +30,7 @@ import org.usrz.libs.logging.Log;
  *
  * @author <a href="mailto:pier@usrz.com">Pier Fumagalli</a>
  */
-public class MappedConfigurations extends Configurations {
+public abstract class MappedConfigurations extends Configurations {
 
     /* Pattern for validating configuration keys */
     private static final Pattern NAME_PATTERN = Pattern.compile("^([\\w\\$-]+(\\.[\\w\\$-]+)*)?$");
@@ -47,7 +47,7 @@ public class MappedConfigurations extends Configurations {
     /**
      * Create a new {@link MappedConfigurations} from a {@link Map}.
      */
-    public MappedConfigurations(Map<?, ?> map)
+    protected MappedConfigurations(Map<?, ?> map)
     throws ConfigurationsException {
         if (map == null) throw new NullPointerException("Null map");
 
@@ -108,6 +108,19 @@ public class MappedConfigurations extends Configurations {
 
         final String value = configurations.get(string);
         return value == null ? defaultValue : value;
+    }
+
+    /**
+     * Return <b>null</b> or fail with a {@link UnsupportedOperationException}.
+     */
+    @Override
+    public Password getPassword(Object key) {
+        if (!configurations.containsKey(key)) return null;
+        if (configurations instanceof Configurations) {
+            return ((Configurations) configurations).getPassword(key);
+        } else {
+            throw new UnsupportedOperationException("The value for \"" + key + "\" can not be retrieved securely");
+        }
     }
 
     /**
