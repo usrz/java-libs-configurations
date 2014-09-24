@@ -15,10 +15,9 @@
  * ========================================================================== */
 package org.usrz.libs.configurations;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-
-import org.usrz.libs.configurations.Configurations;
 
 public class DelegateConfigurations extends Configurations {
 
@@ -29,8 +28,18 @@ public class DelegateConfigurations extends Configurations {
     }
 
     @Override
+    protected Configurations wrap(Map<?, ?> map) {
+        return configurations.wrap(map);
+    }
+
+    @Override
     public String getString(Object key, String defaultValue) {
         return configurations.getString(key, defaultValue);
+    }
+
+    @Override
+    public Password getPassword(Object key) {
+        return configurations.getPassword(key);
     }
 
     @Override
