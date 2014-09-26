@@ -76,6 +76,16 @@ public final class Password implements Supplier<char[]>, Destroyable, Closeable 
     /* ====================================================================== */
 
     @Override
+    protected void finalize() {
+        /* Make entirely and positively sure we wipe the memory */
+        for (int x = 0; x < password.length; x ++) {
+            password[x] = (char) random.nextInt();
+        }
+        Arrays.fill(password, '\0');
+        destroyed = true;
+    }
+
+    @Override
     public int hashCode() {
         return Password.class.hashCode()
              ^ Arrays.hashCode(password)
