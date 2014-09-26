@@ -25,6 +25,7 @@ import javax.security.auth.Destroyable;
 public final class Password implements Supplier<char[]>, Destroyable, Closeable {
 
     private static final SecureRandom random = new SecureRandom();
+    private static final int hashCode = random.nextInt();
 
     private volatile boolean destroyed = false;
     private final Object lock = new Object();
@@ -69,6 +70,29 @@ public final class Password implements Supplier<char[]>, Destroyable, Closeable 
     public boolean isDestroyed() {
         synchronized (lock) {
             return destroyed;
+        }
+    }
+
+    /* ====================================================================== */
+
+    @Override
+    public int hashCode() {
+        return Password.class.hashCode()
+             ^ Arrays.hashCode(password)
+             ^ hashCode;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == this) return true;
+        if (object == null) return false;
+        if (destroyed == true) return false;
+        try {
+            final Password password = (Password) object;
+            if (password.destroyed) return false;
+            return Arrays.equals(this.password, password.password);
+        } catch (ClassCastException exception) {
+            return false;
         }
     }
 }
