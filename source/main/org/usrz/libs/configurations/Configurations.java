@@ -75,6 +75,11 @@ public abstract class Configurations implements Map<String, String> {
         }
 
         @Override
+        public boolean containsKey(Object key) {
+            return false;
+        }
+
+        @Override
         public Set<Entry<String, String>> entrySet() {
             return Collections.emptySet();
         }
@@ -1066,11 +1071,7 @@ public abstract class Configurations implements Map<String, String> {
      * specified key.
      */
     @Override
-    public final boolean containsKey(Object key) {
-        final String defaultValue = new String();
-        final String value = this.getString(key, defaultValue);
-        return value != defaultValue;
-    }
+    public abstract boolean containsKey(Object key);
 
     /**
      * Returns <b>true</b> if this instance maps one or more keys to the

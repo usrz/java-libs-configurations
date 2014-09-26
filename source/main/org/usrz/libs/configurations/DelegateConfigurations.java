@@ -33,6 +33,11 @@ public class DelegateConfigurations extends Configurations {
     }
 
     @Override
+    public boolean containsKey(Object key) {
+        return configurations.containsKey(key);
+    }
+
+    @Override
     public String getString(Object key, String defaultValue) {
         return configurations.getString(key, defaultValue);
     }

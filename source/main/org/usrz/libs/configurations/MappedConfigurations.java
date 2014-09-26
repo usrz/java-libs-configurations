@@ -93,6 +93,15 @@ public abstract class MappedConfigurations extends Configurations {
     /* ====================================================================== */
 
     /**
+     * Returns <b>true</b> if this instance contains a mapping for the
+     * specified key.
+     */
+    @Override
+    public boolean containsKey(Object key) {
+        return configurations.containsKey(key);
+    }
+
+    /**
      * Return the value of associated with the given <em>key</em> as a
      * {@link String} or the specified <em>default value</em> if no mapping
      * was found.
